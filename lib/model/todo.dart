@@ -1,24 +1,32 @@
 class Todo {
-  final String nama;
-  final String deskripsi;
+  final String id; // Firestore document ID
+  final String title;
+  final String description;
+  final bool isComplete;
 
   Todo({
-    required this.nama,
-    required this.deskripsi,
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.isComplete,
   });
-}
 
-List<Todo> listdata = [
-  Todo(
-    nama: 'Studi Kasus 1',
-    deskripsi: 'Membuat Program Dasar Java',
-  ),
-  Todo(
-    nama: 'Studi Kasus 2',
-    deskripsi: 'Membuat Studi Kasus List Makanan',
-  ),
-  Todo(
-    nama: 'Studi Kasus 3',
-    deskripsi: 'Membuat Aplikasi To Do List',
-  ),
-];
+  // Factory method to create a Todo object from Firestore data
+  factory Todo.fromFirestore(Map<String, dynamic> data, String documentId) {
+    return Todo(
+      id: documentId,
+      title: data['title'],
+      description: data['description'],
+      isComplete: data['isComplete'],
+    );
+  }
+
+  // Convert a Todo object to a Firestore-compatible map
+  Map<String, dynamic> toFirestore() {
+    return {
+      'title': title,
+      'description': description,
+      'isComplete': isComplete,
+    };
+  }
+}

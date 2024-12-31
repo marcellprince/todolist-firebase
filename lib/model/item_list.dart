@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
-import 'model/todo.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'todo.dart';
 
 class ItemList extends StatelessWidget {
-  final Todo dataList;
-  const ItemList({super.key, required this.dataList});
+  final String transaksiDocId;
+  final Todo todo;
+  final CollectionReference todoCollection;
+
+  const ItemList({
+    super.key,
+    required this.todo,
+    required this.transaksiDocId,
+    required this.todoCollection,
+  });
+
+  Future<void> deleteTodo() async {
+    await todoCollection.doc(transaksiDocId).delete();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +43,7 @@ class ItemList extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  dataList.nama,
+                  todo.title,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -38,7 +51,7 @@ class ItemList extends StatelessWidget {
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  dataList.deskripsi,
+                  todo.description,
                   style: const TextStyle(
                     fontSize: 16,
                   ),
@@ -47,36 +60,25 @@ class ItemList extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          const ChecklistButton(),
+          IconButton(
+            icon: Icon(
+              todo.isComplete ? Icons.check_box : Icons.check_box_outline_blank,
+              color: todo.isComplete ? Colors.blue : Colors.grey,
+            ),
+            onPressed: () {
+              todoCollection.doc(transaksiDocId).update({
+                'isComplete': !todo.isComplete,
+              });
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              deleteTodo();
+            },
+          ),
         ],
       ),
-    );
-  }
-}
-
-class ChecklistButton extends StatefulWidget {
-  const ChecklistButton({super.key});
-
-  @override
-  State<ChecklistButton> createState() => _ChecklistButtonState();
-}
-
-class _ChecklistButtonState extends State<ChecklistButton> {
-  bool isChecked = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        isChecked ? Icons.check_box : Icons.check_box_outline_blank,
-        color: isChecked ? Colors.blue : Colors.grey,
-        size: 25,
-      ),
-      onPressed: () {
-        setState(() {
-          isChecked = !isChecked;
-        });
-      },
     );
   }
 }
